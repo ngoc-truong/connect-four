@@ -78,10 +78,6 @@ class Game
         until win? || board_full?
             one_round 
         end
-
-        puts "Hat er horizontal gewonnen: " + horizontal_win?.to_s
-        puts "Hat er vertikal gewonnen: " + vertical_win?.to_s
-        puts "Hat er diagonal gewonnen: " + diagonal_win?.to_s
     end
 
     def one_round 
@@ -135,79 +131,90 @@ class Game
         horizontal_win? || vertical_win? || diagonal_win?
     end
 
-    def horizontal_win? 
-        counter = 0
-        current_symbol = @player_one.sign 
-
-        @board.field.each do |row| 
-            row.each do |cell| 
-                if cell == current_symbol 
-                    counter += 1 
-                    return true if counter == 4
-                else 
-                    counter = 0 
-                    current_symbol = @player_two.sign 
-                end 
-            end
-            # Reset counter when going into new row
-            counter = 0
-        end
-        false 
+    def vertical_win? 
+        specific_win?(all_verticals)
     end
 
-    def vertical_win? 
-        counter = 0
-        current_symbol = @player_one.sign
-        other_symbol = @player_two.sign 
-        placeholder = ""  
-        row = 0
-        column = 0
-
-        while column != 7 
-            row = 0
-            while row != 6
-                if @board.field[row][column] == current_symbol 
-                    counter += 1 
-                    return true if counter == 4
-                else 
-                    counter = 1 
-                    placeholder = current_symbol
-                    current_symbol = other_symbol
-                    other_symbol = placeholder 
-                end 
-                row += 1
-            end 
-            counter = 0
-            column += 1
-        end
-        false   
+    def horizontal_win? 
+        specific_win?(all_horizontals)
     end
 
     def diagonal_win? 
-        diagonals = all_diagonals
+        specific_win?(all_diagonals)
+    end
+
+    def specific_win?(coordinates)
+        lines = coordinates
         counter = 0
         current_symbol = @player_one.sign 
         other_symbol = @player_two.sign 
         placeholder = "" 
 
-        diagonals.each do |diagonal| 
-            diagonal.each do |cell| 
+        lines.each do |line| 
+            line.each do |cell| 
                 if @board.field[cell[0]][cell[1]] == current_symbol
-                    counter += 1 
+                    counter += 1
                     return true if counter == 4
-                else 
-                    counter = 1 
-                    placeholder = current_symbol
+                elsif @board.field[cell[0]][cell[1]] == other_symbol
+                    counter = 1
+                    placeholder = current_symbol 
                     current_symbol = other_symbol
                     other_symbol = placeholder
+                else 
+                    counter = 0
                 end
-            end 
+            end
             counter = 0
         end
-        false
+        false         
     end
 
-    # Helper methods for getting all diagonal combinations
+
+    ### Helper methods for getting all coordinates ###
+    def pretty_print(coordinates)
+        coordinates.each { |row| puts row.inspect }
+    end
+
+    def all_horizontals 
+        all = []
+        row = [] 
+        x = 0
+        y = 0
+
+        @board.field.size.times do 
+            @board.field[0].size.times do 
+                row << [x, y]
+                y += 1 
+            end
+            all << row
+            row = []
+            y = 0
+            x += 1
+        end
+
+        all 
+    end
+
+    def all_verticals 
+        all = []
+        column = [] 
+        x = 0
+        y = 0
+
+        @board.field[0].size.times do 
+            @board.field.size.times do 
+                column << [x, y]
+                x += 1
+            end
+            all << column 
+            column = [] 
+            x = 0
+            y += 1
+        end
+
+        all
+    end 
+
     def all_diagonals 
         all_diagonals_asc + all_diagonals_desc
     end
@@ -286,6 +293,5 @@ class Game
     end
 end
 
-# ToDo: Win-Conditions are not correct yet! REFACTOR!
 game = Game.new 
 game.start

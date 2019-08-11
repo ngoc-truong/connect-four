@@ -124,6 +124,18 @@ describe Game do
             expect(@game.vertical_win?).to eq(true)
         end 
 
+        it "indicates that the player does not win vertically with three stones" do 
+            3.times do |cell| 
+                @game.board.field[cell][0] = @game.player_one.sign 
+            end
+
+            3.times do |cell| 
+                @game.board.field[cell][1] = @game.player_two.sign 
+            end
+
+            expect(@game.win?).to eq(false)
+        end
+
         it "indicates that player does not win when sum of old and new column is 4" do 
             # Last cell of column 2
             @game.board.field[5][2] = @game.player_one.sign 
