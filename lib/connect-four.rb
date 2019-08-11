@@ -14,6 +14,7 @@ class Player
         allowed = (0..6).to_a
         puts "Please choose a column between 0 and 6!"
         column = gets.chomp
+        puts ""
 
         while !allowed.include?(column.to_i)
             puts "I'm sorry, but you have to choose a column between 1 and 7."
@@ -60,7 +61,6 @@ class Board
         puts " 0  1  2  3  4  5  6"
         puts "---------------------"
     end
-
 end 
 
 class Game 
@@ -73,7 +73,12 @@ class Game
     end
 
     def start 
-        puts "Welcome to Connect Four! The first player who has four stones in a row wins! Have fun!"
+        puts ""
+        puts "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        puts "~~~~~~~~~~~~~~~~~~ Welcome to Connect Four! ~~~~~~~~~~~~~~~~~~"
+        puts "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        puts ""
+        puts "The first player who has four stones in a line wins! Have fun!"
 
         until win? || board_full?
             one_round 
@@ -84,22 +89,27 @@ class Game
         puts ""
         @board.print_board 
 
+        one_move(@player_one)
+        return if win? 
+        one_move(@player_two)
+    end
+
+    def one_move(player)
         puts ""
-        puts "It's your turn, Player One ('x')."
-        choice = @player_one.choose_column
-        update_board(@player_one, choice) 
+        puts "Now, it's your turn, Player ('" + player.sign + "')."
+        choice = player.choose_column
+        while column_full?(choice) 
+            choice = player.choose_column
+        end
+        update_board(player, choice) 
         @board.print_board 
 
-        if win?
-            puts "You win!"
+        if win? 
+            puts ""
+            puts "You win, Player ('" + player.sign.to_s + "')!"
+            puts ""
             return 
-        end 
-
-        puts ""
-        puts "Now, it's your turn, Player Two ('o')."
-        choice = @player_two.choose_column
-        update_board(@player_two, choice) 
-        @board.print_board 
+        end
     end
 
     def update_board(player, column)
@@ -109,7 +119,7 @@ class Game
             row -= 1
 
             if row == -1
-                full_error = "Sorry, this column is full. Choose another one."
+                full_error = "Sorry, this column is full."
                 puts full_error  
                 return full_error 
             end
@@ -125,6 +135,15 @@ class Game
             end
         end 
         true 
+    end
+
+    def column_full?(column) 
+        if @board.field[0][column] != "" 
+            puts "Sorry, but this column is full."
+            puts "Please choose another column."
+            return true 
+        end
+        false 
     end
 
     def win? 
@@ -164,13 +183,14 @@ class Game
                     counter = 0
                 end
             end
+            # Reset counter if new line begins
             counter = 0
         end
         false         
     end
 
 
-    ### Helper methods for getting all coordinates ###
+    ### Helper methods for getting horizontal, vertical, diagonal coordinates ###
     def pretty_print(coordinates)
         coordinates.each { |row| puts row.inspect }
     end

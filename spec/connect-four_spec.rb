@@ -68,7 +68,7 @@ describe Game do
                 @game.board.field[num][3] = "x"
             end
 
-            expect(@game.update_board(@game.player_one, 3)).to eql("Sorry, this column is full. Choose another one.")
+            expect(@game.column_full?(3)).to eql(true)
         end
 
         it "indicates when a board is not full" do 
